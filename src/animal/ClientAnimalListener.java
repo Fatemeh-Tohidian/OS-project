@@ -16,35 +16,33 @@ public class ClientAnimalListener extends Thread{
 		try {
 			super.run();
 			loop:	while(true){
-				if(scanner.hasNext()){
 
-					String massage = scanner.nextLine();
-					switch (massage) {
+				String massage = scanner.nextLine();
+				switch (massage) {
 
-					case "stop":
+				case "stop":
 
-						System.out.println("stop recived in client side");
-						animalController.stop = true;
+					System.out.println("stop recived in client side");
+					animalController.stop = true;
 
-						break;
+					break;
 
-					case "die":
-						animalController.interrupt();
+				case "die":
+					animalController.interrupt();
 
-						break loop;
+					break loop;
 
 
-					case "go on":
-						animalController.stop = false;
-						System.out.println("client recieved go on cammand");
-						synchronized (animalController) {
+				case "go on":
+					animalController.stop = false;
+					System.out.println("client recieved go on cammand");
+					synchronized (animalController) {
 
-							animalController.notify();
-						}
-
-						break;
-
+						animalController.notify();
 					}
+
+					break;
+
 				}
 			}
 		}finally {
