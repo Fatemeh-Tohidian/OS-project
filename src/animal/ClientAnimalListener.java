@@ -22,7 +22,7 @@ public class ClientAnimalListener extends Thread{
 
 				case "stop":
 
-					System.out.println("stop recived in client side");
+					//					System.out.println("stop recived in client side");
 					animalController.stop = true;
 
 					break;
@@ -30,29 +30,26 @@ public class ClientAnimalListener extends Thread{
 				case "die":
 					animalController.interrupt();
 
-					break loop;
+
+				case "request checked":
+					synchronized (animalController) {
+
+						animalController.notify();
+					}
+
+					break;
 
 
 				case "go on":
 					animalController.stop = false;
-					System.out.println("client recieved go on cammand");
+					//					System.out.println("client recieved go on cammand");
 					synchronized (animalController) {
 
 						animalController.notify();
 					}
 
 					break;
-					
-				case "roger move request":
-					System.out.println("client recieved roger move request cammand");
 
-					synchronized (animalController) {
-
-						animalController.notify();
-					}
-
-
-					break;
 
 				}
 			}

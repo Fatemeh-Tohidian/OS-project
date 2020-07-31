@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Random;
 import java.util.Scanner;
-
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import model.SimulationObject;
 import model.WildLifeUnit;
@@ -17,12 +17,12 @@ public class ServerAnimalHandler extends Thread{
 	Scanner scanner;
 	PrintWriter printWriter;
 	public Process animal;
-	Random random = new Random();
 	static int n ,m;
 	public int age = 0;
 	int r1 ;
 	int r2 ;
 	WildLifeUnit beginning;
+	public  AtomicBoolean running = new AtomicBoolean(true);
 	WildLifeUnit destination;
 	ServerAnimalHandler formerAnimal;
 
@@ -49,80 +49,62 @@ public class ServerAnimalHandler extends Thread{
 		//		try {
 		String massage ;
 		//			System.out.println("handler run");
-		
 
 
-		loop:while(true){
 
-			try {
-				if(Thread.currentThread().isInterrupted()) {
-					synchronized (SimulationObject.lock2) {
-						printWriter.println("die");
+		loop:while(running.get()){
+
+
+			if(scanner.hasNext()){
+
+				try {
+
+
+					massage = scanner.next();
+
+//					System.out.println(massage);
+
+					switch (massage) {
+
+
+					case "recieved":
+						declareReadinessToServer();
+						scanner.nextLine();
+						break;
+
+					case "ready":
+						declareReadinessToServer();
+						scanner.nextLine();
+
+						break;
+
+
+
+					case "move":
+
+						tryToMove(Integer.valueOf(scanner.next()),Integer.valueOf(scanner.next()));
+						printWriter.println("request checked");
 						printWriter.flush();
-
-						SimulationObject.simulateObject.countOfAllDeaths--;
-						//						SimulationObject.simulateObject.countOfReadyAnimals--;
-						System.out.println("left is "+ (SimulationObject.simulateObject.countOfAllDeaths));
-
-						if(SimulationObject.simulateObject.countOfAllDeaths ==0){
-
-							SimulationObject.simulateObject.deadAnimals.release();
-						}
-
-						break loop;
+						break;
 					}
-				}
+					Thread.sleep(500);
 
-				massage = scanner.nextLine();
-									System.out.println(massage);
-
-				switch (massage) {
-
-				case "roger resume command":
-					declareReadinessToServer();
-					break;
-
-				case "I'm ready":
-					declareReadinessToServer();
-					break;
-
-				case "Let's go":
-					declareReadinessToServer();
-					break;
-
-				case "I wanna move":
-					
-					tryToMove();
-					break;
-				}
-				Thread.sleep(500);
-
-			} catch (Exception e) {
-				synchronized (SimulationObject.lock2) {
-					printWriter.println("die");
-					printWriter.flush();
-					SimulationObject.simulateObject.countOfAllDeaths--;
-					//						SimulationObject.simulateObject.countOfReadyAnimals--;
-					System.out.println("left is "+ (SimulationObject.simulateObject.countOfAllDeaths));
-
-					if(SimulationObject.simulateObject.countOfAllDeaths ==
-							0){
-
-						SimulationObject.simulateObject.deadAnimals.release();
-					}
-
+				} catch (Exception e) {
 					break loop;
+
 				}
 			}
+
 		}
+
+
 	}
-	private void tryToMove() {
-		System.out.println("in try to move");
+	private void tryToMove(int r1 , int r2) {
 
 		if(SimulationObject.simulateObject.movePermission) {
-			System.out.println("you have move permision");
-			r1 = random.nextInt(3) -1;
-			r2= random.nextInt(3) -1;
+
+
+
 			if(r1==0 && r2==0){
 				return;
 			}
@@ -138,11 +120,9 @@ public class ServerAnimalHandler extends Thread{
 
 				}
 			}
-		}
-		printWriter.println("roger move request");
-		printWriter.flush();
-		System.out.println("roger is sent to animal");
-		
+		}	
+
+
 	}
 	public void declareReadinessToServer(){
 
@@ -150,13 +130,14 @@ public class ServerAnimalHandler extends Thread{
 		synchronized (SimulationObject.lock1) {
 
 			SimulationObject.simulateObject.countOfReadyAnimals++;
-			System.out.println("after declare rediness left is "+ (SimulationObject.simulateObject.countOfReadyAnimals-SimulationObject.simulateObject.countOfAnimals));
 
-			//			System.out.println("after declareReadinessToServer population is: "+SimulationObject.simulateObject.countOfAnimals+"and count of ready animals is : "+SimulationObject.simulateObject.countOfReadyAnimals );
-			//			System.out.println((SimulationObject.simulateObject.countOfAnimals-SimulationObject.simulateObject.countOfReadyAnimals +"is left to declare rediness"));
-			if(SimulationObject.simulateObject.countOfAnimals ==
+//			System.out.println("after declare rediness left is "+ (SimulationObject.simulateObject.countOfAnimals-SimulationObject.simulateObject.countOfReadyAnimals));
+
+//			System.out.println("after declareReadinessToServer population is: "+SimulationObject.simulateObject.countOfAnimals+"and count of ready animals is : "+SimulationObject.simulateObject.countOfReadyAnimals );
+//			System.out.println((SimulationObject.simulateObject.countOfAnimals-SimulationObject.simulateObject.countOfReadyAnimals +"is left to declare rediness"));
+			if(SimulationObject.simulateObject.countOfAnimals <=
 					SimulationObject.simulateObject.countOfReadyAnimals){
-				//				SimulationObject.simulateObject.countOfReadyAnimals = 0;
+								SimulationObject.simulateObject.countOfReadyAnimals = SimulationObject.simulateObject.countOfAnimals;
 
 				SimulationObject.simulateObject.waitForAnimalsSem.release();
 			}

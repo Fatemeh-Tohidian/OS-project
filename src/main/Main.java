@@ -18,10 +18,10 @@ public class Main {
 		int s = sc.nextInt();
 		int k = sc.nextInt();
 		int t = sc.nextInt();
-		System.out.println("r "+r);
-		System.out.println("n "+n);
-		System.out.println("m "+m);
-		System.out.println("s "+s);
+//		System.out.println("r "+r);
+//		System.out.println("n "+n);
+//		System.out.println("m "+m);
+//		System.out.println("s "+s);
 
 		sc.close();
 

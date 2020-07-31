@@ -9,10 +9,11 @@ import animal.ServerAnimalHandler;
 public class SimulationObject {
 	public WildLifeUnit[][] environment;
 	public static final Object lock1 = new Object();
-	public static final Object lock2 = new Object();
+//	public static final Object lock2 = new Object();
+//	public static final Object lock3 = new Object();
 	public Semaphore waitForAnimalsSem = new Semaphore(0);
 	public Semaphore readyAnimalsSem = new Semaphore(0);
-	public Semaphore deadAnimals = new Semaphore(0);
+//	public Semaphore deadAnimals = new Semaphore(0);
 	public Semaphore initialize = new Semaphore(0);
 	
 	
@@ -39,6 +40,7 @@ public class SimulationObject {
 	public int r,s,n,m,k,t;
 	public int countOfAnimals;
 	public int countOfAllDeaths;
+	public int countOfNewBorns;
 	public static void initialize(int r,int n,int m ,int s ,int k ,int t) {
 
 		simulateObject = new SimulationObject();
