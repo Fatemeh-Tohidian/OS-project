@@ -46,101 +46,114 @@ public class ServerAnimalHandler extends Thread{
 	}
 	@Override
 	public void run() {
-//		try {
-			String massage ;
-//			System.out.println("handler run");
-			super.run();
+		//		try {
+		String massage ;
+		//			System.out.println("handler run");
+		super.run();
 
 
-			loop:while(true){
+		loop:while(true){
 
-				try {
-
-//					System.out.println("handler is wating for massage");
-//					System.out.println("handler recieved a new massage");
-					massage = scanner.nextLine();
-//					System.out.println(massage);
-
-					switch (massage) {
-
-					case "roger resume command":
-						declareReadinessToServer();
-						break;
-
-					case "I'm ready":
-						declareReadinessToServer();
-						break;
-
-					case "Let's go":
-						declareReadinessToServer();
-						break;
-
-					case "I wanna move":
-						tryToMove();
-						break;
-					}
-					Thread.sleep(500);
-
-				} catch (InterruptedException e) {
+			try {
+				if(Thread.currentThread().isInterrupted()) {
 					synchronized (SimulationObject.lock2) {
 						printWriter.println("die");
 						printWriter.flush();
-//						System.out.println("in kiling process ------------");
-//						System.out.println("count of all animals is "+ (SimulationObject.simulateObject.countOfAnimals));
-//						System.out.println("count of ready animals is "+ (SimulationObject.simulateObject.countOfReadyAnimals));
 
-						
 						SimulationObject.simulateObject.countOfAllDeaths--;
-//						SimulationObject.simulateObject.countOfReadyAnimals--;
+						//						SimulationObject.simulateObject.countOfReadyAnimals--;
 						System.out.println("left is "+ (SimulationObject.simulateObject.countOfAllDeaths));
 
-						if(SimulationObject.simulateObject.countOfAllDeaths ==
-							0){
+						if(SimulationObject.simulateObject.countOfAllDeaths ==0){
 
 							SimulationObject.simulateObject.deadAnimals.release();
 						}
-						
+
 						break loop;
 					}
 				}
-			}
-//		}
-//		finally {
-//			printWriter.close();
-//			scanner.close();
-//		}
 
+				massage = scanner.nextLine();
+									System.out.println(massage);
+
+				switch (massage) {
+
+				case "roger resume command":
+					declareReadinessToServer();
+					break;
+
+				case "I'm ready":
+					declareReadinessToServer();
+					break;
+
+				case "Let's go":
+					declareReadinessToServer();
+					break;
+
+				case "I wanna move":
+					
+					tryToMove();
+					break;
+				}
+				Thread.sleep(500);
+
+			} catch (Exception e) {
+				synchronized (SimulationObject.lock2) {
+					printWriter.println("die");
+					printWriter.flush();
+					SimulationObject.simulateObject.countOfAllDeaths--;
+					//						SimulationObject.simulateObject.countOfReadyAnimals--;
+					System.out.println("left is "+ (SimulationObject.simulateObject.countOfAllDeaths));
+
+					if(SimulationObject.simulateObject.countOfAllDeaths ==
+							0){
+
+						SimulationObject.simulateObject.deadAnimals.release();
+					}
+
+					break loop;
+				}
+			}
+		}
 	}
 	private void tryToMove() {
-		//				System.out.println("in try to move");
-		r1 = random.nextInt(3) -1;
-		r2= random.nextInt(3) -1;
-		if(r1==0 && r2==0){
-			return;
-		}
-		beginning = SimulationObject.simulateObject.environment[position.x][position.y];
-		if(position.x+r1>=1 && position.x+r1 <= n && position.y+r2 >= 1 && position.y+r2 <= m){
+		System.out.println("in try to move");
+
+		if(SimulationObject.simulateObject.movePermission) {
+			System.out.println("you have move permision");
+			r1 = random.nextInt(3) -1;
+			r2= random.nextInt(3) -1;
+			if(r1==0 && r2==0){
+				return;
+			}
+			beginning = SimulationObject.simulateObject.environment[position.x][position.y];
+			if(position.x+r1>=1 && position.x+r1 <= n && position.y+r2 >= 1 && position.y+r2 <= m){
 
 
-			destination = SimulationObject.simulateObject.environment[position.x+r1][position.y+r2];
+				destination = SimulationObject.simulateObject.environment[position.x+r1][position.y+r2];
 
-			formerAnimal = this;
-			if(destination.MoveIn(beginning,this)){
-				beginning.MoveOut(formerAnimal);
+				formerAnimal = this;
+				if(destination.MoveIn(beginning,this)){
+					beginning.MoveOut(formerAnimal);
 
+				}
 			}
 		}
+		printWriter.println("roger move request");
+		printWriter.flush();
+		System.out.println("roger is sent to animal");
+		
 	}
 	public void declareReadinessToServer(){
 
-//		System.out.println("in declareReadinessToServer");
+		//		System.out.println("in declareReadinessToServer");
 		synchronized (SimulationObject.lock1) {
 
 			SimulationObject.simulateObject.countOfReadyAnimals++;
 			System.out.println("after declare rediness left is "+ (SimulationObject.simulateObject.countOfReadyAnimals-SimulationObject.simulateObject.countOfAnimals));
 
-//			System.out.println("after declareReadinessToServer population is: "+SimulationObject.simulateObject.countOfAnimals+"and count of ready animals is : "+SimulationObject.simulateObject.countOfReadyAnimals );
-//			System.out.println((SimulationObject.simulateObject.countOfAnimals-SimulationObject.simulateObject.countOfReadyAnimals +"is left to declare rediness"));
+			//			System.out.println("after declareReadinessToServer population is: "+SimulationObject.simulateObject.countOfAnimals+"and count of ready animals is : "+SimulationObject.simulateObject.countOfReadyAnimals );
+			//			System.out.println((SimulationObject.simulateObject.countOfAnimals-SimulationObject.simulateObject.countOfReadyAnimals +"is left to declare rediness"));
 			if(SimulationObject.simulateObject.countOfAnimals ==
 					SimulationObject.simulateObject.countOfReadyAnimals){
 				//				SimulationObject.simulateObject.countOfReadyAnimals = 0;
@@ -151,14 +164,14 @@ public class ServerAnimalHandler extends Thread{
 	}
 
 	public void declareStopToAnimal(){
-//		System.out.println("in declareStopToAnimal");
+		//		System.out.println("in declareStopToAnimal");
 		printWriter.println("stop");
 		printWriter.flush();
 
 
 	}
 	public void declareResumeToAnimal(){
-//		System.out.println("in declareResumeToAnimal");
+		//		System.out.println("in declareResumeToAnimal");
 		printWriter.println("go on");
 		printWriter.flush();
 

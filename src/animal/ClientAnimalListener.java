@@ -42,6 +42,16 @@ public class ClientAnimalListener extends Thread{
 					}
 
 					break;
+					
+				case "roger move request":
+
+					synchronized (animalController) {
+
+						animalController.notify();
+					}
+
+
+					break;
 
 				}
 			}

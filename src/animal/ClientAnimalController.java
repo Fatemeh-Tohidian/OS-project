@@ -13,7 +13,7 @@ public class ClientAnimalController extends Thread {
 
 		while (true) {
 			try {
-//			System.out.println("controller loop");
+			System.out.println("controller loop");
 
 			if(stop){
 				//				System.out.println("stop in controller loop");
@@ -38,7 +38,13 @@ public class ClientAnimalController extends Thread {
 				break;
 				
 			}
-			System.out.println("I wanna move");
+			
+			try {
+				System.out.println("I wanna move");
+				this.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 
 		}
 	}
