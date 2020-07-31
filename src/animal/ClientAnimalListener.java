@@ -44,6 +44,7 @@ public class ClientAnimalListener extends Thread{
 					break;
 					
 				case "roger move request":
+					System.out.println("client recieved roger move request cammand");
 
 					synchronized (animalController) {
 

@@ -49,7 +49,7 @@ public class ServerAnimalHandler extends Thread{
 		//		try {
 		String massage ;
 		//			System.out.println("handler run");
-		super.run();
+		
 
 
 		loop:while(true){

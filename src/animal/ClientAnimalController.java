@@ -9,7 +9,7 @@ public class ClientAnimalController extends Thread {
 	public void run() {
 		//		System.out.println("starting client animal controller");
 
-		super.run();
+		
 
 		while (true) {
 			try {
@@ -40,8 +40,9 @@ public class ClientAnimalController extends Thread {
 			}
 			
 			try {
+				synchronized (this) {
 				System.out.println("I wanna move");
-				this.wait();
+				this.wait();}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
