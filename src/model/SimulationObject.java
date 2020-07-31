@@ -9,7 +9,7 @@ import animal.ServerAnimalHandler;
 public class SimulationObject {
 	public WildLifeUnit[][] environment;
 	public static final Object lock1 = new Object();
-//	public static final Object lock2 = new Object();
+	public static final Object lock2 = new Object();
 	public Semaphore waitForAnimalsSem = new Semaphore(0);
 	public Semaphore readyAnimalsSem = new Semaphore(0);
 	public Semaphore deadAnimals = new Semaphore(0);

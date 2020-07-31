@@ -82,14 +82,20 @@ public class ServerAnimalHandler extends Thread{
 					Thread.sleep(500);
 
 				} catch (InterruptedException e) {
-					synchronized (SimulationObject.lock1) {
+					synchronized (SimulationObject.lock2) {
 						printWriter.println("die");
 						printWriter.flush();
-						System.out.println("in kiling process ------------");
-						System.out.println("left is "+ (SimulationObject.simulateObject.countOfReadyAnimals-SimulationObject.simulateObject.countOfAnimals));
-						SimulationObject.simulateObject.countOfReadyAnimals--;
-						if(SimulationObject.simulateObject.countOfAnimals ==
-								SimulationObject.simulateObject.countOfReadyAnimals){
+//						System.out.println("in kiling process ------------");
+//						System.out.println("count of all animals is "+ (SimulationObject.simulateObject.countOfAnimals));
+//						System.out.println("count of ready animals is "+ (SimulationObject.simulateObject.countOfReadyAnimals));
+
+						
+						SimulationObject.simulateObject.countOfAllDeaths--;
+//						SimulationObject.simulateObject.countOfReadyAnimals--;
+						System.out.println("left is "+ (SimulationObject.simulateObject.countOfAllDeaths));
+
+						if(SimulationObject.simulateObject.countOfAllDeaths ==
+							0){
 
 							SimulationObject.simulateObject.deadAnimals.release();
 						}
@@ -131,6 +137,8 @@ public class ServerAnimalHandler extends Thread{
 		synchronized (SimulationObject.lock1) {
 
 			SimulationObject.simulateObject.countOfReadyAnimals++;
+			System.out.println("after declare rediness left is "+ (SimulationObject.simulateObject.countOfReadyAnimals-SimulationObject.simulateObject.countOfAnimals));
+
 //			System.out.println("after declareReadinessToServer population is: "+SimulationObject.simulateObject.countOfAnimals+"and count of ready animals is : "+SimulationObject.simulateObject.countOfReadyAnimals );
 //			System.out.println((SimulationObject.simulateObject.countOfAnimals-SimulationObject.simulateObject.countOfReadyAnimals +"is left to declare rediness"));
 			if(SimulationObject.simulateObject.countOfAnimals ==

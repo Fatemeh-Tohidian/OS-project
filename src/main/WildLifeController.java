@@ -55,27 +55,34 @@ public class WildLifeController{
 		public void run() {
 
 			try {
+				int con = 0;
 				synchronized (SimulationObject.lock1) {
 					SimulationObject.simulateObject.countOfReadyAnimals = 0;
-				}
-				int con = 0;
+				
 
 
 				for(int i = 1; i <= n ; i++){
 					for(int j = 1 ; j <= m ; j++){
 						animals = SimulationObject.simulateObject.environment[i][j].animals;
-						for(int k =0 ; k < animals.size() ; k++) {
-							animals.get(k).declareStopToAnimal();
+						for(ServerAnimalHandler animal : animals) {
+							animal.declareStopToAnimal();
 							con++;
 
 						}
 					}
 				}
-				System.out.println("count of stoped animals is "+ con);
+				}
+//				System.out.println("count of stoped animals is "+ con);
+//				System.out.println("count of All animals is "+ SimulationObject.simulateObject.countOfAnimals);
+				
 				SimulationObject.simulateObject.waitForAnimalsSem.acquire();
 
 
 				checkDeath();
+				synchronized (SimulationObject.lock1) {
+					SimulationObject.simulateObject.countOfAnimals -= SimulationObject.simulateObject.countOfAllDeaths;
+					SimulationObject.simulateObject.countOfReadyAnimals -= SimulationObject.simulateObject.countOfAllDeaths;
+					}
 				System.out.println("before dead animals lock");
 				SimulationObject.simulateObject.deadAnimals.acquire();
 				System.out.println("after dead animals lock");
@@ -122,18 +129,17 @@ public class WildLifeController{
 				//				System.out.println("");
 				print();
 				//				
-				System.out.println("before check birth");
+//				System.out.println("before check birth");
 				checkBirth();
-				System.out.println("after check birth");
-				System.out.println("before wait for newborns");
+//				System.out.println("after check birth");
+//				System.out.println("before wait for newborns");
 				SimulationObject.simulateObject.waitForAnimalsSem.acquire();
-				System.out.println("after wait for newborns");
+//				System.out.println("after wait for newborns");
 				synchronized (SimulationObject.lock1) {
 
 
 					SimulationObject.simulateObject.countOfReadyAnimals = 0;
 				}
-				int counter = 0 ;
 				//					SimulationObject.simulateObject.countOfReadyAnimals = 0;
 				for(int i = 1; i <= n ; i++){
 					for(int j = 1 ; j <= m ; j++){
@@ -141,7 +147,6 @@ public class WildLifeController{
 						//						System.out.println(animals.size());
 
 						for (ServerAnimalHandler serverAnimalHandler : animals) {
-							counter++;
 							//							System.out.println("server is going to send resume signal to handlers");
 							serverAnimalHandler.declareResumeToAnimal();;
 
@@ -190,15 +195,26 @@ public class WildLifeController{
 							break;
 
 						case 2:
-							System.out.print( ANSI_YELLOW_BACKGROUND +SimulationObject.simulateObject.environment[i][j].animals.size() +ANSI_RESET+" ");
+							System.out.print( ANSI_BLUE_BACKGROUND +SimulationObject.simulateObject.environment[i][j].animals.size()+ANSI_RESET+" ");
+
 
 							break;
 						case 3:
 							System.out.print( ANSI_CYAN_BACKGROUND +SimulationObject.simulateObject.environment[i][j].animals.size()+ANSI_RESET+" ");
 
+
 							break;
 						case 4:
 							System.out.print( ANSI_GREEN_BACKGROUND +SimulationObject.simulateObject.environment[i][j].animals.size()+ANSI_RESET+" ");
+
+
+							break;
+						case 5:
+							System.out.print( ANSI_YELLOW_BACKGROUND +SimulationObject.simulateObject.environment[i][j].animals.size() +ANSI_RESET+" ");
+
+							break;
+						case 6:
+							System.out.print( ANSI_RED_BACKGROUND +SimulationObject.simulateObject.environment[i][j].animals.size()+ANSI_RESET+" ");
 
 							break;
 
@@ -221,25 +237,27 @@ public class WildLifeController{
 
 		}
 		public void checkDeath(){
-			synchronized (SimulationObject.lock1) {
+			System.out.println("above lock 1 lock in death");
+			synchronized (SimulationObject.lock2) {
 				System.out.println("before check death count of  animals is : "+ SimulationObject.simulateObject.countOfAnimals);
-
+//
 				System.out.println("before check death count of ready animals is : "+ SimulationObject.simulateObject.countOfReadyAnimals);
 				checkCapacity();
-				//				System.out.println("after check capacity");
+								System.out.println("after check capacity");
 				checkEating();
-				//				System.out.println("after check eating");
+								System.out.println("after check eating");
 				if(SimulationObject.simulateObject.OK){
-//					System.out.println("in ok release");
+					System.out.println("in ok release");
 					SimulationObject.simulateObject.deadAnimals.release();
 				}
 				else{
 					SimulationObject.simulateObject.OK = true;
 				}
 				System.out.println("after check death count of  animals is : "+ SimulationObject.simulateObject.countOfAnimals);
-
+//
 				System.out.println("after check death count of ready animals is : "+ SimulationObject.simulateObject.countOfReadyAnimals);
 
+				
 			}
 		}
 
@@ -263,7 +281,7 @@ public class WildLifeController{
 										if(power < eatingData.id*eatingData.specialCount && unit.id != eatingData.id){
 											ans+=unit.animals.size();
 											for (ServerAnimalHandler diedAnimal : unit.animals) {
-												SimulationObject.simulateObject.countOfAnimals--;
+												SimulationObject.simulateObject.countOfAllDeaths++;
 												SimulationObject.simulateObject.OK = false;
 												diedAnimal.interrupt();
 											}
@@ -277,7 +295,7 @@ public class WildLifeController{
 										if(power < eatingData.id*eatingData.realCount && unit.id != eatingData.id){
 											ans+=unit.animals.size();
 											for (ServerAnimalHandler diedAnimal : unit.animals) {
-												SimulationObject.simulateObject.countOfAnimals--;
+												SimulationObject.simulateObject.countOfAllDeaths++;
 												SimulationObject.simulateObject.OK = false;
 												diedAnimal.interrupt();
 											}
@@ -299,7 +317,7 @@ public class WildLifeController{
 									if(power < eatingData.id*eatingData.realCount && unit.id != eatingData.id){
 										ans+=unit.animals.size();
 										for (ServerAnimalHandler diedAnimal : unit.animals) {
-											SimulationObject.simulateObject.countOfAnimals--;
+											SimulationObject.simulateObject.countOfAllDeaths++;
 											SimulationObject.simulateObject.OK = false;
 											diedAnimal.interrupt();
 										}
@@ -523,7 +541,7 @@ public class WildLifeController{
 							SimulationObject.simulateObject.OK = false;
 							unit.animals.get(0).interrupt();
 							unit.animals.remove(0);
-							SimulationObject.simulateObject.countOfAnimals--;
+							SimulationObject.simulateObject.countOfAllDeaths++;
 						}
 						if(unit.animals.isEmpty()){
 							unit.id = 0;
